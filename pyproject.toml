@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "barry-io-lakeflow"
+version = "0.1.0"
+description = "BARRY.IO Integration Runtime — Databricks Lakeflow Community Connector (snapshot / direct-query source)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "oh22information services GmbH" }]
+keywords = ["databricks", "lakeflow", "barry.io", "ingestion", "arrow"]
+
+dependencies = [
+    "requests>=2.31,<3",
+    "pyarrow>=14",
+    # pyspark is provided by the Databricks runtime; pinned here for local dev.
+    "pyspark>=3.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "responses>=0.25",
+]
+
+[tool.setuptools]
+# Single-module connector — no package tree.
+py-modules = ["barry_io_lakeflow"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Tests import the connector module directly from the project root.
+pythonpath = ["."]

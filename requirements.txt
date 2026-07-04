@@ -1,0 +1,7 @@
+# Dev environment for the BARRY.IO Lakeflow Community Connector.
+#
+# All dependencies are declared once in pyproject.toml; this file just installs
+# the project in editable mode with the dev extras (pytest etc.). In a
+# Databricks Lakeflow ingestion pipeline, requests/pyarrow/pyspark are provided
+# by the runtime — they are pulled in here for local development only.
+-e .[dev]

@@ -1,0 +1,31 @@
+name: Release
+
+# Tag a version (e.g. v0.1.0) to build the single-file deployment artifact and
+# attach it to a GitHub release. Runs in the standalone repo.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # No dependency install: tools/build_artifact.py uses only the stdlib.
+      - name: Build deployment artifact
+        run: python tools/build_artifact.py
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/barry-io-lakeflow/barry_io_lakeflow.py
+          body_path: RELEASE_NOTES.md
