@@ -1,0 +1,48 @@
+# BARRY.IO Community Connector Spec
+# This file defines the specification for the connector including
+# connection parameters and allowlist options, following the
+# databrickslabs/lakeflow-community-connectors template.
+#
+# There is deliberately NO `oauth` block: BARRY.IO authenticates with a
+# static, admin-issued bearer token, so the Unity Catalog connection uses
+# the static-credential auth type (USES_ANY_STATIC_CREDENTIAL) — not
+# USES_OAUTH_M2M (the BARRY.IO server exposes no OAuth token endpoint).
+
+# ============================================================================
+# Connection Parameters
+# These are provided when creating the Unity Catalog connection.
+# ============================================================================
+display_name: BARRY.IO
+connection:
+  parameters:
+    - name: base_url
+      type: string
+      required: true
+      description: >
+        BARRY.IO server origin, e.g. https://barry.example.com. Your
+        BARRY.IO administrator provides it together with the token from
+        the transport group's Lakeflow access card.
+
+    - name: token
+      type: string
+      required: true
+      secret: true
+      description: >
+        Per-group access token issued by a BARRY.IO administrator from the
+        transport group's Lakeflow access card. Sent as an
+        "Authorization: Bearer" header. One token scopes to one transport
+        group (many tables) and can be rotated/revoked from the same card.
+
+    - name: verify_ssl
+      type: string
+      required: false
+      description: >
+        "true" (default) or "false". Set to "false" only for development
+        servers with self-signed certificates.
+
+# ============================================================================
+# External Options Allowlist
+# No table-specific options: the connector is snapshot-only and serves every
+# table in the token's group through the same read path.
+# ============================================================================
+external_options_allowlist: ""

@@ -22,6 +22,7 @@ server's HTTP serving API, and yields rows into Unity Catalog.
 ```
 .
 ├── barry_io_lakeflow.py       # BarryClient (HTTP) + LakeflowConnect (glue)
+├── connector_spec.yaml        # framework spec: connection params (static credential)
 ├── tools/
 │   └── build_artifact.py      # build → dist/barry-io-lakeflow/barry_io_lakeflow.py
 ├── tests/
@@ -89,21 +90,29 @@ never hardcode the token):
 Ask your BARRY.IO administrator to issue the token from the group's **Lakeflow
 access** card; they will give you the `base_url` and the `token`.
 
-Create the UC connection (example — adjust to the framework's expected connection
-type for community connectors):
+Create the connection in the Databricks UI (pipeline wizard → **+ Create
+connection**, or Catalog → External data → Connections):
 
-```sql
-CREATE CONNECTION barry_io_finance
-  TYPE <community-connector-type>
-  OPTIONS (
-    base_url 'https://barry.example.com',
-    token    secret('barry_scope', 'finance_group_token'),
-    verify_ssl 'true'
-  );
+1. **Auth Type:** `USES_ANY_STATIC_CREDENTIAL`. BARRY.IO authenticates with a
+   static, admin-issued bearer token — do **not** pick `USES_OAUTH_M2M`; the
+   BARRY.IO server exposes no OAuth token endpoint, so the Client id / Client
+   secret / Token endpoint fields cannot be filled.
+2. **Connection name:** your choice, e.g. `barry_io_finance`.
+3. **Options:** the parameters from the table above, with exactly those key
+   names — `base_url`, `token`, and optionally `verify_ssl`. If the dialog shows
+   named fields (rendered from `connector_spec.yaml`), fill those; otherwise add
+   them as **Additional Options** key/value rows.
+
+Alternatively, the framework CLI creates the same connection from
+`connector_spec.yaml` (it reads the static-credential auth mode from the spec):
+
+```bash
+community-connector create_connection barry_io <CONNECTION_NAME> \
+  -o '{"base_url": "https://barry.example.com", "token": "<group token>"}'
 ```
 
-Store the token in a Databricks secret scope and reference it with `secret(...)`
-so it is never logged or hardcoded.
+Unity Catalog stores the connection credentials encrypted; the token is never
+logged or hardcoded into the pipeline definition.
 
 ---
 
